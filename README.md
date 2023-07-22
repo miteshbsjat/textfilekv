@@ -36,11 +36,9 @@ import (
 )
 
 func main() {
-	filePath := "data.txt"
+	filePath := "/tmp/data.txt"
 	kvs := tkv.NewKeyValueStore(filePath)
 
-	kvs.Set("name", "John")
-	kvs.Set("age", "30")
 	kvs.Set("name", "Mitesh")
 	kvs.Set("age", "41")
 	kvs.Set("data", "{\"height\": 167}")
@@ -72,6 +70,17 @@ Output
 Name: Mitesh
 Age: 41
 Data: {"height": 167}
+```
+
+Now adding the key `demokey` by running following command after first run of this program.
+```bash
+echo 'demokey=demovalue' >> /tmp/data.txt
+```
+Output
+```bash
+Name: Mitesh
+Age: 41
+Data: {"height": 167}
 Demokey: demovalue
 ```
 
@@ -88,6 +97,6 @@ go test
 `textfilekv` has the following features for now.
 * Simple to comprehend and update using *nix editors like. nano, vim, emacs, even filter programs
 * Same format as `.env` file supported by config tools or libraries like `viper`
-* Useful for very programs which need only limited set of key-values stored in a file
+* Useful for programs which need only limited set of key-values stored in a file
 
 This is quite simple text file based key value store written in go, there are quite a few areas for improvements and optimizations. 
