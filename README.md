@@ -61,9 +61,18 @@ func main() {
 	}
 	demokey, exists := kvs.Get("demokey")
 	if exists {
-		fmt.Printf("Data: %s\n", demokey)
+		fmt.Printf("Demokey: %s\n", demokey)
 	}
 }
+```
+
+Output
+
+```bash
+Name: Mitesh
+Age: 41
+Data: {"height": 167}
+Demokey: demovalue
 ```
 
 ### Testing
