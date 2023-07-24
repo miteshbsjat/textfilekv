@@ -31,8 +31,8 @@ This file will be created if not present.
 package main
 
 import (
-    "fmt"
-    tkv "github.com/miteshbsjat/textfilekv"
+	"fmt"
+	tkv "github.com/miteshbsjat/textfilekv"
 )
 
 func main() {
