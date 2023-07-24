@@ -27,18 +27,26 @@ $ go install github.com/miteshbsjat/textfilekv@latest
 It is just required to provide path of text file to store the key-value(s).
 This file will be created if not present.
 
+test_kv.go
+
 ```go
 package main
 
 import (
-	"fmt"
-	tkv "github.com/miteshbsjat/textfilekv"
+    "fmt"
+    tkv "github.com/miteshbsjat/textfilekv"
 )
 
 func main() {
-	filePath := "/tmp/data.txt"
-	kvs := tkv.NewKeyValueStore(filePath)
+	filePath := "data.txt"
+	kvs, err := tkv.NewKeyValueStore(filePath)
+    if err != nil {
+        fmt.Printf("Error in creating/reading %s for textfilekv %v\n",
+                filePath, err)
+    }
 
+	kvs.Set("name", "John")
+	kvs.Set("age", "30")
 	kvs.Set("name", "Mitesh")
 	kvs.Set("age", "41")
 	kvs.Set("data", "{\"height\": 167}")
@@ -59,9 +67,14 @@ func main() {
 	}
 	demokey, exists := kvs.Get("demokey")
 	if exists {
-		fmt.Printf("Demokey: %s\n", demokey)
+		fmt.Printf("Data: %s\n", demokey)
 	}
 }
+```
+
+Run
+```bash
+go run test_kv.go
 ```
 
 Output
