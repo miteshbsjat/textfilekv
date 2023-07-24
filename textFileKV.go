@@ -6,36 +6,59 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 )
 
 type KeyValueStore struct {
 	filePath string
 	store    map[string]string
+	mu       sync.RWMutex
 }
 
-func NewKeyValueStore(filePath string) *KeyValueStore {
+func NewKeyValueStore(filePath string) (*KeyValueStore, error) {
 	kvs := &KeyValueStore{
 		filePath: filePath,
 		store:    make(map[string]string),
 	}
-	kvs.loadFromFile()
-	return kvs
+	// Load existing data from file
+	if err := kvs.loadFromFile(); err != nil {
+		log.Printf("Failed load file %s %v\n", filePath, err)
+		return nil, err
+	}
+
+	return kvs, nil
+
 }
 
-func (kvs *KeyValueStore) Set(key, value string) {
+func (kvs *KeyValueStore) Set(key, value string) error {
+	kvs.mu.RLock()
+	defer kvs.mu.RUnlock()
+
 	kvs.store[key] = value
-	kvs.saveToFile()
+	return kvs.saveToFile()
 }
 
 func (kvs *KeyValueStore) Get(key string) (string, bool) {
+	kvs.mu.RLock()
+	defer kvs.mu.RUnlock()
+
 	value, ok := kvs.store[key]
 	return value, ok
 }
 
-func (kvs *KeyValueStore) saveToFile() {
+func (kvs *KeyValueStore) Delete(key string) error {
+	kvs.mu.Lock()
+	defer kvs.mu.Unlock()
+
+	delete(kvs.store, key)
+	return kvs.saveToFile()
+}
+
+func (kvs *KeyValueStore) saveToFile() error {
 	file, err := os.OpenFile(kvs.filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error in saving to file %s %v\n", kvs.filePath, err)
+		return err
 	}
 	defer file.Close()
 
@@ -45,17 +68,20 @@ func (kvs *KeyValueStore) saveToFile() {
 	}
 
 	if err := writer.Flush(); err != nil {
-		log.Fatal(err)
+		log.Printf("Failed to write flush %v\n", err)
+		return err
 	}
+	return nil
 }
 
-func (kvs *KeyValueStore) loadFromFile() {
+func (kvs *KeyValueStore) loadFromFile() error {
 	file, err := os.Open(kvs.filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return
+			return nil
 		}
-		log.Fatal(err)
+		log.Printf("Failed to open textfilekv file %v\n", err)
+		return err
 	}
 	defer file.Close()
 
@@ -71,6 +97,8 @@ func (kvs *KeyValueStore) loadFromFile() {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		log.Printf("Failed to scanner Err %v\n", err)
+		return err
 	}
+	return nil
 }

@@ -4,7 +4,7 @@ import "testing"
 
 func TestTextFileKV(t *testing.T) {
 	filePath := "/tmp/data.txt"
-	kvs := NewKeyValueStore(filePath)
+	kvs, _ := NewKeyValueStore(filePath)
 
 	kvs.Set("name", "Mitesh")
 	kvs.Set("age", "41")
@@ -23,7 +23,7 @@ func TestTextFileKV(t *testing.T) {
 
 func TestTextFileKVRead(t *testing.T) {
 	filePath := "/tmp/data.txt"
-	kvs := NewKeyValueStore(filePath)
+	kvs, _ := NewKeyValueStore(filePath)
 
 	name, _ := kvs.Get("name")
 	if name != "Mitesh" {
@@ -33,5 +33,12 @@ func TestTextFileKVRead(t *testing.T) {
 	age, _ := kvs.Get("age")
 	if age != "41" {
 		t.Errorf("Age: got %s instead of 41", age)
+	}
+
+	// delete check
+	kvs.Delete("age")
+	age, exist := kvs.Get("age")
+	if exist != false {
+		t.Errorf("Age: %s should not be present after Delete", age)
 	}
 }
