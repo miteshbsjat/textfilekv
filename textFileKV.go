@@ -46,6 +46,17 @@ func (kvs *KeyValueStore) Get(key string) (string, bool) {
 	return value, ok
 }
 
+func (kvs *KeyValueStore) Keys() []string {
+	kvs.mu.RLock()
+	defer kvs.mu.RUnlock()
+
+	keys := make([]string, 0, len(kvs.store))
+	for key := range kvs.store {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
 func (kvs *KeyValueStore) Delete(key string) error {
 	kvs.mu.Lock()
 	defer kvs.mu.Unlock()
